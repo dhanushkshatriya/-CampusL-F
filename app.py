@@ -390,12 +390,15 @@ def ensure_admin():
                       'created_at': datetime.now().isoformat()})
     print("[OK] Admin account created: admin@campus.edu / admin123")
 
+# Initialize Firebase at module level (works with both python app.py and gunicorn)
+init_firebase()
+ensure_admin()
+
 if __name__ == '__main__':
-    init_firebase()
-    ensure_admin()
     print("\n=== Campus Lost & Found (Firebase) ===")
     print("Open: http://127.0.0.1:5000")
     print("Admin: admin@campus.edu / admin123")
     print("======================================\n")
     app.run(debug=True, port=5000)
+
 
