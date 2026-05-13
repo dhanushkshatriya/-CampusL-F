@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - Campus L&F{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-shield-lock text-warning"></i> Admin Dashboard</h2>
+            <p class="opacity-60 mb-0">Manage all reports, users, and matches</p>
+        </div>
+        <a href="{{ url_for('statistics') }}" class="btn btn-primary"><i class="bi bi-bar-chart"></i> Analytics</a>
+    </div>
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2"><div class="glass-card p-3 text-center"><h4 class="fw-bold text-danger mb-0">{{ stats.total_lost }}</h4><small class="opacity-60">Lost</small></div></div>
+        <div class="col-6 col-md-2"><div class="glass-card p-3 text-center"><h4 class="fw-bold text-success mb-0">{{ stats.total_found }}</h4><small class="opacity-60">Found</small></div></div>
+        <div class="col-6 col-md-2"><div class="glass-card p-3 text-center"><h4 class="fw-bold text-primary mb-0">{{ stats.recovered }}</h4><small class="opacity-60">Recovered</small></div></div>
+        <div class="col-6 col-md-2"><div class="glass-card p-3 text-center"><h4 class="fw-bold text-warning mb-0">{{ stats.open_cases }}</h4><small class="opacity-60">Open</small></div></div>
+        <div class="col-6 col-md-2"><div class="glass-card p-3 text-center"><h4 class="fw-bold text-info mb-0">{{ stats.total_users }}</h4><small class="opacity-60">Users</small></div></div>
+        <div class="col-6 col-md-2"><div class="glass-card p-3 text-center"><h4 class="fw-bold text-secondary mb-0">{{ stats.recovery_rate }}%</h4><small class="opacity-60">Recovery</small></div></div>
+    </div>
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-3" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#allLost">Lost ({{ lost_items|length }})</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#allFound">Found ({{ found_items|length }})</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#allUsers">Users ({{ users|length }})</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#allMatches">Matches</a></li>
+    </ul>
+    <div class="tab-content">
+        <!-- Lost Items Tab -->
+        <div class="tab-pane fade show active" id="allLost">
+            <div class="glass-card p-3">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>#</th><th>Item</th><th>Category</th><th>Location</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {% for item in lost_items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td><strong>{{ item.item_name }}</strong></td>
+                                <td><span class="badge bg-dark">{{ item.category }}</span></td>
+                                <td>{{ item.last_seen_location or 'N/A' }}</td>
+                                <td><span class="badge bg-{{ 'success' if item.status=='recovered' else 'secondary' }}">{{ item.status|title }}</span></td>
+                                <td>{{ format_date(item.date_lost) }}</td>
+                                <td>
+                                    <a href="{{ url_for('report_details', item_type='lost', item_id=item.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                                    <form method="POST" action="{{ url_for('admin_delete_report', item_type='lost', item_id=item.id) }}" class="d-inline" onsubmit="return confirm('Delete?')">
+                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Found Items Tab -->
+        <div class="tab-pane fade" id="allFound">
+            <div class="glass-card p-3">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>#</th><th>Item</th><th>Category</th><th>Location</th><th>Deposited</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {% for item in found_items %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td><strong>{{ item.item_name }}</strong></td>
+                                <td><span class="badge bg-dark">{{ item.category }}</span></td>
+                                <td>{{ item.found_location or 'N/A' }}</td>
+                                <td>{{ item.deposited_at or 'N/A' }}</td>
+                                <td><span class="badge bg-{{ 'info' if item.status=='returned' else 'secondary' }}">{{ item.status|title }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('report_details', item_type='found', item_id=item.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                                    <form method="POST" action="{{ url_for('admin_delete_report', item_type='found', item_id=item.id) }}" class="d-inline" onsubmit="return confirm('Delete?')">
+                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Users Tab -->
+        <div class="tab-pane fade" id="allUsers">
+            <div class="glass-card p-3">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Department</th><th>Role</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td><strong>{{ user.full_name }}</strong></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.department }}</td>
+                                <td><span class="badge bg-{{ 'warning' if user.role=='admin' else 'primary' }}">{{ user.role|title }}</span></td>
+                                <td>
+                                    {% if user.role != 'admin' %}
+                                    <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline" onsubmit="return confirm('Delete user and all their reports?')">
+                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Protected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Matches Tab -->
+        <div class="tab-pane fade" id="allMatches">
+            <div class="glass-card p-3">
+                <h5 class="fw-bold mb-3">Manual Match</h5>
+                <form method="POST" class="row g-2 align-items-end mb-4" id="manualMatchForm">
+                    <div class="col-md-4">
+                        <label class="form-label small">Lost Item ID</label>
+                        <select class="form-select" id="matchLostId">
+                            {% for item in lost_items %}
+                            {% if item.status == 'open' %}
+                            <option value="{{ item.id }}">{{ item.id }} - {{ item.item_name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">Found Item ID</label>
+                        <select class="form-select" id="matchFoundId">
+                            {% for item in found_items %}
+                            {% if item.status == 'open' %}
+                            <option value="{{ item.id }}">{{ item.id }} - {{ item.item_name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary w-100" onclick="submitManualMatch()"><i class="bi bi-link-45deg"></i> Match Items</button>
+                    </div>
+                </form>
+                <h6 class="fw-bold">Recent Auto-Matches</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead><tr><th>Lost ID</th><th>Found ID</th><th>Score</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% for m in matches %}
+                            <tr>
+                                <td>{{ m.lost_item_id }}</td>
+                                <td>{{ m.found_item_id }}</td>
+                                <td><span class="badge bg-{{ 'success' if m.match_score >= 60 else 'warning' }}">{{ m.match_score }}%</span></td>
+                                <td>{{ m.status|title }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function submitManualMatch() {
+    const lostId = document.getElementById('matchLostId').value;
+    const foundId = document.getElementById('matchFoundId').value;
+    if (lostId && foundId && confirm('Match these items? This will mark the lost item as recovered and the found item as returned.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/match/${lostId}/${foundId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

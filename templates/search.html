@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Search - Campus L&F{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-1"><i class="bi bi-search"></i> Search Items</h2>
+    <p class="opacity-60 mb-4">Find lost or found items across campus</p>
+    <!-- Search Filters -->
+    <div class="glass-card p-3 mb-4">
+        <form method="GET" action="{{ url_for('search') }}" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-500">Keyword</label>
+                <input type="text" name="q" class="form-control" placeholder="Search items..." value="{{ keyword }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-500">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {{ 'selected' if selected_category == cat }}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-500">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="open" {{ 'selected' if selected_status == 'open' }}>Open</option>
+                    <option value="recovered" {{ 'selected' if selected_status == 'recovered' }}>Recovered</option>
+                    <option value="returned" {{ 'selected' if selected_status == 'returned' }}>Returned</option>
+                    <option value="claimed" {{ 'selected' if selected_status == 'claimed' }}>Claimed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-500">Type</label>
+                <select name="type" class="form-select">
+                    <option value="all" {{ 'selected' if selected_type == 'all' }}>All</option>
+                    <option value="lost" {{ 'selected' if selected_type == 'lost' }}>Lost</option>
+                    <option value="found" {{ 'selected' if selected_type == 'found' }}>Found</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Search</button>
+            </div>
+        </form>
+    </div>
+    <p class="small opacity-60 mb-3">Showing {{ results|length }} of {{ total }} results</p>
+    <!-- Results -->
+    <div class="row g-3">
+        {% for item in results %}
+        <div class="col-md-4">
+            <div class="glass-card p-3 hover-lift item-card">
+                {% if item.image_path %}
+                <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" class="rounded mb-2 w-100" style="height:150px;object-fit:cover;" alt="">
+                {% else %}
+                <div class="placeholder-img rounded mb-2 d-flex align-items-center justify-content-center {{ 'bg-danger' if item.type == 'lost' else 'bg-success' }} bg-opacity-10" style="height:150px">
+                    <i class="bi bi-image fs-2 {{ 'text-danger' if item.type == 'lost' else 'text-success' }} opacity-50"></i>
+                </div>
+                {% endif %}
+                <div class="d-flex gap-1 mb-1">
+                    <span class="badge bg-{{ 'danger' if item.type == 'lost' else 'success' }}">{{ item.type|title }}</span>
+                    <span class="badge bg-secondary">{{ item.status|title }}</span>
+                    <span class="badge bg-dark">{{ item.category }}</span>
+                </div>
+                <h6 class="fw-bold mb-1">{{ item.item_name }}</h6>
+                <p class="small opacity-60 mb-1">{{ item.description[:80] }}{{ '...' if item.description and item.description|length > 80 }}</p>
+                <small class="opacity-50"><i class="bi bi-geo-alt"></i> {{ item.get('last_seen_location') or item.get('found_location') or 'N/A' }}</small>
+                <div class="mt-2">
+                    <a href="{{ url_for('report_details', item_type=item.type, item_id=item.id) }}" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-eye"></i> View Details</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5 opacity-50">
+            <i class="bi bi-search fs-1"></i>
+            <p class="mt-2">No items found. Try different search criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {{ 'disabled' if page <= 1 }}">
+                <a class="page-link" href="?q={{ keyword }}&category={{ selected_category }}&status={{ selected_status }}&type={{ selected_type }}&page={{ page-1 }}">&laquo;</a>
+            </li>
+            {% for p in range(1, total_pages+1) %}
+            <li class="page-item {{ 'active' if p == page }}">
+                <a class="page-link" href="?q={{ keyword }}&category={{ selected_category }}&status={{ selected_status }}&type={{ selected_type }}&page={{ p }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            <li class="page-item {{ 'disabled' if page >= total_pages }}">
+                <a class="page-link" href="?q={{ keyword }}&category={{ selected_category }}&status={{ selected_status }}&type={{ selected_type }}&page={{ page+1 }}">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

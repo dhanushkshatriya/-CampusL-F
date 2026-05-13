@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}My Reports{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>My Reports</h2>
+            <div class="row">
+                {% for report in my_reports %}
+                <div class="col-md-4 mb-3">
+                    <div class="card glass-card h-100">
+                        <img src="{{ url_for('static', filename='images/' + report.image) }}" class="card-img-top" alt="Item image">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ report.item_name }}</h5>
+                            <p class="card-text">{{ report.description|truncate(60) }}</p>
+                            <span class="badge bg-secondary">{{ report.status }}</span>
+                            <a href="{{ url_for('report_details', report_id=report.id) }}" class="btn btn-outline-primary btn-sm mt-2">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

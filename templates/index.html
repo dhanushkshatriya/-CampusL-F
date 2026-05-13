@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Campus Lost & Found - Home{% endblock %}
+{% block content %}
+<!-- HERO -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 mb-4">
+                <span class="badge bg-primary bg-opacity-25 text-primary px-3 py-2 mb-3 animate-fade-in">🎓 University Campus Portal</span>
+                <h1 class="display-4 fw-800 mb-3 animate-slide-up">Lost Something?<br><span class="text-gradient">We Help You Find It.</span></h1>
+                <p class="lead opacity-75 mb-4 animate-slide-up">Report lost or found items on campus. Our smart matching system connects owners with finders automatically.</p>
+                <div class="d-flex gap-3 flex-wrap animate-slide-up">
+                    {% if session.get('user_id') %}
+                        <a href="{{ url_for('report_lost') }}" class="btn btn-danger btn-lg px-4"><i class="bi bi-exclamation-diamond"></i> Report Lost</a>
+                        <a href="{{ url_for('report_found') }}" class="btn btn-success btn-lg px-4"><i class="bi bi-hand-thumbs-up"></i> Report Found</a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4"><i class="bi bi-person-plus"></i> Get Started</a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-visual">
+                    <div class="floating-card card-1"><i class="bi bi-phone fs-1 text-primary"></i><br><small>Phone Found</small></div>
+                    <div class="floating-card card-2"><i class="bi bi-key fs-1 text-warning"></i><br><small>Keys Lost</small></div>
+                    <div class="floating-card card-3"><i class="bi bi-bag fs-1 text-success"></i><br><small>Bag Matched!</small></div>
+                    <div class="hero-circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-3 text-center">
+            <div class="col-4">
+                <div class="glass-card p-3 stat-card">
+                    <h2 class="fw-bold text-danger mb-0 counter" data-target="{{ lost_count }}">{{ lost_count }}</h2>
+                    <small class="opacity-75">Items Lost</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="glass-card p-3 stat-card">
+                    <h2 class="fw-bold text-success mb-0 counter" data-target="{{ found_count }}">{{ found_count }}</h2>
+                    <small class="opacity-75">Items Found</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="glass-card p-3 stat-card">
+                    <h2 class="fw-bold text-primary mb-0 counter" data-target="{{ recovered }}">{{ recovered }}</h2>
+                    <small class="opacity-75">Recovered</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-2">How It Works</h2>
+        <p class="text-center opacity-60 mb-5">Three simple steps to recover your lost items</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 hover-lift">
+                    <div class="step-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-pencil-square fs-2"></i></div>
+                    <h5 class="fw-bold mt-3">1. Report</h5>
+                    <p class="opacity-75 small">Submit a detailed report of your lost or found item with photos and location.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 hover-lift">
+                    <div class="step-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-cpu fs-2"></i></div>
+                    <h5 class="fw-bold mt-3">2. Auto-Match</h5>
+                    <p class="opacity-75 small">Our algorithm automatically matches lost items with found reports.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card p-4 text-center h-100 hover-lift">
+                    <div class="step-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle fs-2"></i></div>
+                    <h5 class="fw-bold mt-3">3. Recover</h5>
+                    <p class="opacity-75 small">Connect with the finder and collect your item from the designated location.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- RECENT ITEMS -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-4">Recent Reports</h2>
+        <ul class="nav nav-pills justify-content-center mb-4" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#recentLost">Lost Items</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#recentFound">Found Items</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="recentLost">
+                <div class="row g-3">
+                    {% for item in recent_lost[:6] %}
+                    <div class="col-md-4">
+                        <div class="glass-card p-3 hover-lift item-card">
+                            {% if item.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" class="card-img-top rounded mb-2" alt="{{ item.item_name }}" style="height:160px;object-fit:cover;">
+                            {% else %}
+                                <div class="placeholder-img bg-danger bg-opacity-10 rounded mb-2 d-flex align-items-center justify-content-center" style="height:160px">
+                                    <i class="bi bi-image fs-1 text-danger opacity-50"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-danger mb-1">Lost</span>
+                            <span class="badge bg-{{ 'success' if item.status == 'recovered' else 'secondary' }}">{{ item.status|title }}</span>
+                            <h6 class="fw-bold mt-1 mb-1">{{ item.item_name }}</h6>
+                            <small class="opacity-60"><i class="bi bi-geo-alt"></i> {{ item.last_seen_location or 'Unknown' }}</small><br>
+                            <small class="opacity-50"><i class="bi bi-calendar"></i> {{ format_date(item.date_lost) }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12 text-center py-4 opacity-50">No lost items reported yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="tab-pane fade" id="recentFound">
+                <div class="row g-3">
+                    {% for item in recent_found[:6] %}
+                    <div class="col-md-4">
+                        <div class="glass-card p-3 hover-lift item-card">
+                            {% if item.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" class="card-img-top rounded mb-2" alt="{{ item.item_name }}" style="height:160px;object-fit:cover;">
+                            {% else %}
+                                <div class="placeholder-img bg-success bg-opacity-10 rounded mb-2 d-flex align-items-center justify-content-center" style="height:160px">
+                                    <i class="bi bi-image fs-1 text-success opacity-50"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-success mb-1">Found</span>
+                            <span class="badge bg-{{ 'info' if item.status == 'returned' else 'secondary' }}">{{ item.status|title }}</span>
+                            <h6 class="fw-bold mt-1 mb-1">{{ item.item_name }}</h6>
+                            <small class="opacity-60"><i class="bi bi-geo-alt"></i> {{ item.found_location or 'Unknown' }}</small><br>
+                            <small class="opacity-50"><i class="bi bi-calendar"></i> {{ format_date(item.date_found) }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12 text-center py-4 opacity-50">No found items reported yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

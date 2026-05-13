@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Profile - Campus L&F{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card p-4 text-center animate-fade-in">
+                <div class="auth-icon bg-primary bg-opacity-10 text-primary mx-auto mb-3"><i class="bi bi-person-circle fs-1"></i></div>
+                <h3 class="fw-bold">{{ user.full_name }}</h3>
+                <span class="badge bg-{{ 'warning' if user.role == 'admin' else 'primary' }} mb-3">{{ user.role|title }}</span>
+                <div class="text-start mt-3">
+                    <div class="glass-card p-3 mb-2"><strong><i class="bi bi-envelope"></i> Email:</strong> {{ user.email }}</div>
+                    <div class="glass-card p-3 mb-2"><strong><i class="bi bi-building"></i> Department:</strong> {{ user.department }}</div>
+                    <div class="glass-card p-3 mb-2"><strong><i class="bi bi-calendar"></i> Joined:</strong> {{ format_date(user.created_at) }}</div>
+                </div>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3"><i class="bi bi-grid"></i> Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
