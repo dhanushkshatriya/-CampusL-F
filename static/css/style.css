@@ -51,6 +51,9 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     transition: background 0.3s, color 0.3s;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: #5a52d5; }
@@ -77,7 +80,7 @@ a:hover { color: #5a52d5; }
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border-color);
     box-shadow: 0 2px 20px rgba(0,0,0,0.06);
-    padding: 0.6rem 0;
+    padding: max(0.6rem, env(safe-area-inset-top)) 0 0.6rem 0;
     z-index: 1050;
 }
 .glass-nav .navbar-brand { color: var(--accent); font-size: 1.3rem; }
